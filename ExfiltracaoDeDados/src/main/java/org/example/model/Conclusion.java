@@ -1,5 +1,7 @@
 package org.example.model;
 
+import org.example.dataExtraction.DataExfiltration;
+
 public class Conclusion extends Fact {
     public static final String HTTP_OWNED_SERVER = "HTTP to owned server";
     public static final String COMMON_SITES = "Exfiltrate through common sites";
@@ -13,7 +15,7 @@ public class Conclusion extends Fact {
 
     public Conclusion(String description) {
         this.description = description;
-        Haemorrhage.agendaEventListener.addRhs(this);
+        DataExfiltration.agendaEventListener.addRhs(this);
     }
 
     public String getDescription() {
