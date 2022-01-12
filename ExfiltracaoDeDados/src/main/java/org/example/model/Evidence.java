@@ -3,7 +3,7 @@ package org.example.model;
 
 public class Evidence extends Fact {
     public static final String DEFENSES = "Are there defenses";
-    public static final String HTPP_ALLOWED = "Is HTPP connections allowed to outside";
+    public static final String HTTP_ALLOWED = "Is HTPP connections allowed to outside";
     public static final String DOMAIN_CHECKED = "Is the domain checked";
     public static final String ENCRYPTION = "Is encryption needed";
     public static final String ACCEPTED_DOMAIN = "Do we own an accepted domain";
