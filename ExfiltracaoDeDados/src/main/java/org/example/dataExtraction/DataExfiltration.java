@@ -14,6 +14,8 @@ import java.io.BufferedReader;
 import java.util.Map;
 import java.util.TreeMap;
 
+import java.util.Scanner;
+
 public class DataExfiltration {
     public static KieSession KS;
     public static BufferedReader BR;
@@ -21,8 +23,14 @@ public class DataExfiltration {
     public static Map<Integer, Justification> justifications;
 
     public static final void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String choice;
         UI.uiInit();
-        runEngine();
+        do {
+            runEngine();
+            System.out.println("Do you want to make a new simulation? (Y-Yes)");
+            choice=scanner.nextLine();
+        }while (choice.equalsIgnoreCase("Y"));
         UI.uiClose();
     }
 
