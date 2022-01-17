@@ -4,6 +4,7 @@ import org.example.dataExtraction.DataExfiltration;
 
 public class Conclusion extends Fact {
     public static final String HTTP_OWNED_SERVER = "HTTP to owned server";
+    public static final String HTTPS_OWNED_SERVER = "HTTPS to owned server";
     public static final String COMMON_SITES = "Exfiltrate through common sites";
     public static final String QUERIES = "A queries";
     public static final String TXT = "TXT records";

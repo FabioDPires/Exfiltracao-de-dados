@@ -14,13 +14,136 @@
 */
 
 package org.example;
+import org.example.model.Evidence;
+import org.example.model.Hypothesis;
+import org.example.model.Conclusion;
+import org.example.model.Fact;
 
-global java.util.Set controlSet;
+import function org.example.ui.UI.answer;
 
-rule "will execute per each Measurement having ID color"
-no-loop
-when
-	Measurement( id == "color", $colorVal : val )
-then
-	controlSet.add($colorVal);
+query "Conclusions"
+	$conclusion : Conclusion()
+end
+
+rule "r1"
+	when
+		eval(answer(Evidence.DEFENSES, "yes" ))
+	then
+		Hypothesis h = new Hypothesis("Needs to be bypassed", "Yes");
+		insert(h);
+end
+
+rule "r2"
+	when
+		eval(answer(Evidence.DEFENSES, "no" ))
+	then
+		Conclusion c = new Conclusion(Conclusion.HTTP_OWNED_SERVER);
+        insert(c);
+end
+
+rule "r3"
+	when
+	    Hypothesis( description == "Needs to be bypassed", value == "Yes")
+        eval(answer(Evidence.HTTP_ALLOWED, "yes" ))
+        eval(answer(Evidence.DOMAIN_CHECKED, "no" ))
+        eval(answer(Evidence.ENCRYPTION, "no" ))
+	then
+		Conclusion c= new Conclusion(Conclusion.HTTP_OWNED_SERVER);
+		insert(c);
+end
+
+rule "r4"
+	when
+	    Hypothesis( description == "Needs to be bypassed", value == "Yes")
+        eval(answer(Evidence.HTTP_ALLOWED, "yes" ))
+        eval(answer(Evidence.DOMAIN_CHECKED, "no" ))
+        eval(answer(Evidence.ENCRYPTION, "yes" ))
+	then
+		Conclusion c= new Conclusion(Conclusion.HTTPS_OWNED_SERVER);
+		insert(c);
+end
+
+rule "r5"
+	when
+	    Hypothesis( description == "Needs to be bypassed", value == "Yes")
+        eval(answer(Evidence.HTTP_ALLOWED, "yes" ))
+        eval(answer(Evidence.DOMAIN_CHECKED, "yes" ))
+        eval(answer(Evidence.ACCEPTED_DOMAIN, "no" ))
+	then
+		Conclusion c= new Conclusion(Conclusion.COMMON_SITES);
+		insert(c);
+end
+
+rule "r6"
+	when
+	    Hypothesis( description == "Needs to be bypassed", value == "Yes")
+        eval(answer(Evidence.HTTP_ALLOWED, "yes" ))
+        eval(answer(Evidence.DOMAIN_CHECKED, "yes" ))
+        eval(answer(Evidence.ACCEPTED_DOMAIN, "yes" ))
+        eval(answer(Evidence.ENCRYPTION, "yes" ))
+	then
+		Conclusion c= new Conclusion(Conclusion.HTTPS_OWNED_SERVER);
+		insert(c);
+end
+
+rule "r7"
+	when
+	    Hypothesis( description == "Needs to be bypassed", value == "Yes")
+        eval(answer(Evidence.HTTP_ALLOWED, "yes" ))
+        eval(answer(Evidence.DOMAIN_CHECKED, "yes" ))
+        eval(answer(Evidence.ACCEPTED_DOMAIN, "yes" ))
+        eval(answer(Evidence.ENCRYPTION, "no" ))
+	then
+		Conclusion c= new Conclusion(Conclusion.HTTP_OWNED_SERVER);
+		insert(c);
+end
+
+rule "r8"
+	when
+        eval(answer(Evidence.HTTP_ALLOWED, "no" ))
+        eval(answer(Evidence.DNS_ALLOWED, "yes" ))
+        eval(answer(Evidence.HIGH_AMOUNT_DATA, "yes" ))
+	then
+		Conclusion c= new Conclusion(Conclusion.TXT);
+		insert(c);
+end
+
+rule "r9"
+	when
+        eval(answer(Evidence.HTTP_ALLOWED, "no" ))
+        eval(answer(Evidence.DNS_ALLOWED, "yes" ))
+        eval(answer(Evidence.HIGH_AMOUNT_DATA, "no" ))
+	then
+		Conclusion c= new Conclusion(Conclusion.QUERIES);
+		insert(c);
+end
+
+rule "r10"
+	when
+        eval(answer(Evidence.DNS_ALLOWED, "no" ))
+        eval(answer(Evidence.SSH_ALLOWED, "yes" ))
+	then
+		Conclusion c= new Conclusion(Conclusion.SSH_OWNED_SERVER);
+		insert(c);
+end
+
+rule "r11"
+	when
+        eval(answer(Evidence.SSH_ALLOWED, "no" ))
+        eval(answer(Evidence.EMAIL_ALLOWED, "yes" ))
+	then
+		Conclusion c= new Conclusion(Conclusion.EMAIL);
+		insert(c);
+end
+
+rule "unknown"
+	when
+		not Conclusion()
+	then
+		Conclusion c = new Conclusion(Conclusion.UNKNOWN);
+		insert(c);
+end
+
+query "evidence"(String ev, String v)
+	e : Evidence( evidence == ev, value == v )
 end
