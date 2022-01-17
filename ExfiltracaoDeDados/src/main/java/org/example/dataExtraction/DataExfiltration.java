@@ -84,13 +84,9 @@ public class DataExfiltration {
         Map.Entry<Integer, Justification>[] entryArray
                 = entrySet.toArray(
                 new Map.Entry[entrySet.size()]);
-
-        List<Evidence> resultEvidences = new ArrayList<>();
+        //if entry size =0 interrupt method;
         for (int i = 0; i < entrySet.size(); i++) {
-            System.out.println("ITERATION : " + i);
             // Get Key using index and print
-            System.out.println("Key at " + i + ":"
-                    + entryArray[i].getKey());
 
             // Get value using index and print
             Justification justification = entryArray[i].getValue();
