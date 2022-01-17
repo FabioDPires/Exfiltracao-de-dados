@@ -36,7 +36,6 @@ public class How {
                 }
             }
         }
-
         return sb.toString();
     }
 

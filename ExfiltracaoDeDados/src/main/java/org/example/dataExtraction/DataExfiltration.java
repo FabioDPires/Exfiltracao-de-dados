@@ -1,7 +1,6 @@
 package org.example.dataExtraction;
 
-import org.example.model.Conclusion;
-import org.example.model.Justification;
+import org.example.model.*;
 import org.example.ui.UI;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
@@ -11,10 +10,7 @@ import org.kie.api.runtime.rule.Row;
 import org.kie.api.runtime.rule.ViewChangedEventListener;
 
 import java.io.BufferedReader;
-import java.util.Map;
-import java.util.TreeMap;
-
-import java.util.Scanner;
+import java.util.*;
 
 public class DataExfiltration {
     public static KieSession KS;
@@ -29,8 +25,8 @@ public class DataExfiltration {
         do {
             runEngine();
             System.out.println("Do you want to make a new simulation? (Y-Yes)");
-            choice=scanner.nextLine();
-        }while (choice.equalsIgnoreCase("Y"));
+            choice = scanner.nextLine();
+        } while (choice.equalsIgnoreCase("Y"));
         UI.uiClose();
     }
 
@@ -56,8 +52,6 @@ public class DataExfiltration {
                 public void rowInserted(Row row) {
                     Conclusion conclusion = (Conclusion) row.get("$conclusion");
                     System.out.println(">>>" + conclusion.toString());
-
-                    //System.out.println(Haemorrhage.justifications);
                     How how = new How(DataExfiltration.justifications);
                     System.out.println(how.getHowExplanation(conclusion.getId()));
 
@@ -78,9 +72,36 @@ public class DataExfiltration {
             // kSession.fireUntilHalt();
 
             query.close();
+            giveTips();
 
         } catch (Throwable t) {
             t.printStackTrace();
+        }
+    }
+
+    private static void giveTips() {
+        Set<Map.Entry<Integer, Justification>> entrySet = justifications.entrySet();
+        Map.Entry<Integer, Justification>[] entryArray
+                = entrySet.toArray(
+                new Map.Entry[entrySet.size()]);
+
+        List<Evidence> resultEvidences = new ArrayList<>();
+        for (int i = 0; i < entrySet.size(); i++) {
+            System.out.println("ITERATION : " + i);
+            // Get Key using index and print
+            System.out.println("Key at " + i + ":"
+                    + entryArray[i].getKey());
+
+            // Get value using index and print
+            Justification justification = entryArray[i].getValue();
+            List<Fact> lhs=justification.getLhs();
+            for(int j=0;j<lhs.size();j++){
+                if(!(lhs.get(j) instanceof Hypothesis)){
+                    Evidence evi= (Evidence) lhs.get(j);
+                    System.out.println("EVIDENCE: "+evi.getEvidence());
+                    System.out.println("VALUE: "+evi.getValue());
+                }
+            }
         }
     }
 
