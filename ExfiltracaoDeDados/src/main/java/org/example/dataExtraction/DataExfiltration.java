@@ -17,6 +17,8 @@ public class DataExfiltration {
     public static BufferedReader BR;
     public static TrackingAgendaEventListener agendaEventListener;
     public static Map<Integer, Justification> justifications;
+    public static List<Advice> advices;
+    public static Conclusion conclusion;
 
     public static final void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -31,6 +33,7 @@ public class DataExfiltration {
     }
 
     private static void runEngine() {
+        advices = new ArrayList<>();
         try {
             DataExfiltration.justifications = new TreeMap<Integer, Justification>();
 
@@ -50,7 +53,8 @@ public class DataExfiltration {
 
                 @Override
                 public void rowInserted(Row row) {
-                    Conclusion conclusion = (Conclusion) row.get("$conclusion");
+                    conclusion = (Conclusion) row.get("$conclusion");
+                    System.out.println("CONCKLUSION: " + conclusion.toString());
                     System.out.println(">>>" + conclusion.toString());
                     How how = new How(DataExfiltration.justifications);
                     System.out.println(how.getHowExplanation(conclusion.getId()));
@@ -72,34 +76,77 @@ public class DataExfiltration {
             // kSession.fireUntilHalt();
 
             query.close();
-            giveTips();
+            getEvidences();
+            getAdviceFromConclusion();
+            printAdvices();
 
         } catch (Throwable t) {
             t.printStackTrace();
         }
     }
 
-    private static void giveTips() {
+    private static void getEvidences() {
         Set<Map.Entry<Integer, Justification>> entrySet = justifications.entrySet();
         Map.Entry<Integer, Justification>[] entryArray
                 = entrySet.toArray(
                 new Map.Entry[entrySet.size()]);
-        //if entry size =0 interrupt method;
-        for (int i = 0; i < entrySet.size(); i++) {
-            // Get Key using index and print
+        if (entrySet.size() > 0) {
+            runTroughEvidences(entrySet.size(), entryArray);
+        }
+    }
 
-            // Get value using index and print
+    private static void runTroughEvidences(int size, Map.Entry<Integer, Justification>[] entryArray) {
+        for (int i = 0; i < size; i++) {
             Justification justification = entryArray[i].getValue();
-            List<Fact> lhs=justification.getLhs();
-            for(int j=0;j<lhs.size();j++){
-                if(!(lhs.get(j) instanceof Hypothesis)){
-                    Evidence evi= (Evidence) lhs.get(j);
-                    System.out.println("EVIDENCE: "+evi.getEvidence());
-                    System.out.println("VALUE: "+evi.getValue());
+            List<Fact> lhs = justification.getLhs();
+            for (int j = 0; j < lhs.size(); j++) {
+                if (!(lhs.get(j) instanceof Hypothesis)) {
+                    Evidence evi = (Evidence) lhs.get(j);
+                    getAdviceFromEvidence(evi);
                 }
             }
+        }
+
+    }
+
+    private static void getAdviceFromEvidence(Evidence evi) {
+            if (evi.getEvidence().equals(Evidence.DEFENSES) && evi.getValue().equals("no")) {
+            advices.add(new Advice(Advice.IMPLEMENT_DEFENSES, Risk.NO_DEFENSES));
+            return;
+        }
+        if (evi.getEvidence().equals(Evidence.DOMAIN_CHECKED) && evi.getValue().equals("no")) {
+            advices.add(new Advice(Advice.WHITELIST, Risk.NO_CHECKED_DOMAIN));
+            return;
+        }
+        if (evi.getEvidence().equals(Evidence.ACCEPTED_DOMAIN) && evi.getValue().equals("yes")) {
+            advices.add(new Advice(Advice.RESTRICT_DOMAIN, Risk.ACCEPTED_DOMAIN));
+            return;
+        }
+        if (evi.getEvidence().equals(Evidence.SSH_ALLOWED) && evi.getValue().equals("yes")) {
+            advices.add(new Advice(Advice.RESTRICT_COMMUNICATION, Risk.SSH_CONNECTIONS));
+            return;
+        }
+    }
+
+    private static void getAdviceFromConclusion() {
+        String conclusionDescription= conclusion.getDescription();
+        if (conclusionDescription.equals(Conclusion.QUERIES) || conclusionDescription.equals(Conclusion.TXT)){
+            advices.add(new Advice(Advice.ANALYZE_QUERIES,Risk.QUERIES_TXT));
+            return;
+        }
+
+        if(conclusionDescription.equals(Conclusion.EMAIL)){
+            advices.add(new Advice(Advice.MONITOR_EMAIL,Risk.EMAIL));
+            return;
+        }
+
+    }
+
+    private static void printAdvices() {
+        System.out.println("How to improve our system: ");
+        for (int i = 0; i < advices.size(); i++) {
+            System.out.println(advices.get(i).toString());
         }
     }
 
 }
-
